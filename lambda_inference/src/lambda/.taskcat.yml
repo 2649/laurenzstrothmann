@@ -1,0 +1,18 @@
+project:
+  name: object-detection-lambda-inference
+  regions:
+    - eu-central-1
+  s3_bucket: taskcat-bucket-str
+  package_lambda: true
+  parameters:
+    ServiceName: LambdaInference
+    S3BucketLambda: taskcat-bucket-str  # S3 bucket, where the lambda function is stored
+    S3PathLambda: object-detection-lambda-inference/lambda_functions/packages/object_detection/lambda.zip # S3 path where the lambda function is stored
+    S3BucketModel: taskcat-bucket-str  # S3 bucket, where the onnx model is stored
+    S3PathModel: lambda_inference/model.onnx  # S3 path where the onnx model is stored
+    
+tests:
+  default:
+    template: "./inference_template.yml"
+    regions:
+      - eu-central-1

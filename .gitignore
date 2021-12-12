@@ -1,0 +1,12 @@
+*.taskcat
+__pycache__
+*.onnx
+*_venv
+fridge
+lightning_logs
+class_map.json
+*.zip
+*taskcat_outputs
+
+# Work in progress
+tfjs

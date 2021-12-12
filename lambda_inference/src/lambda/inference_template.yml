@@ -1,0 +1,70 @@
+Description:
+  "
+  Template that builds a lambda function, which is capable of running object detection inference.
+  "
+
+Parameters:
+  ServiceName:
+    Type: String
+    Default: FridgeObjectDetectors
+  S3BucketLambda:  # S3 bucket, where the lambda function is stored
+    Type: String
+  S3PathLambda:  # S3 path where the lambda function is stored
+    Type: String
+  S3BucketModel:  # S3 bucket, where the onnx model is stored
+    Type: String
+  S3PathModel:  # S3 path where the onnx model is stored
+    Type: String
+
+Resources:  
+  objectDetectionLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: !Ref S3BucketLambda
+        S3Key: !Sub ${S3PathLambda}
+      Description: Inference of onnx models
+      Environment:
+        Variables:
+          BLOG_TUTORIAL_INFERENCE_MODEL: !Ref S3BucketModel
+          BLOG_TUTORIAL_INFERENCE_BUCKET: !Ref S3PathModel
+          BLOG_TUTORIAL_DETECTION_THRESHOLD: 0.5
+          BLOG_TUTORIAL_INPUT_IMAGE_SIZE: 384
+      FunctionName: !Sub ObjectDetection${ServiceName}
+      Handler: inference.event_handler
+      MemorySize: 10240
+      PackageType: Zip
+      Role: !GetAtt lambdaRole.Arn
+      Runtime: python3.8
+      Timeout: 900
+      Tags:
+        - Key: Name
+          Value: !Sub ${ServiceName}ObjectDetectionLambda
+
+  lambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+            - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+              - lambda.amazonaws.com
+        Version: 2012-10-17
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AWSLambdaExecute
+      RoleName: !Sub LambdaRole${ServiceName}
+      Policies:
+        - PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: "s3:GetObject"
+                Resource: !Sub arn:aws:s3:::${S3BucketModel}/${S3PathModel}
+          PolicyName: !Sub ${ServiceName}AccessToModel
+      Tags:
+        - Key: Name
+          Value: !Sub ${ServiceName}ObjectDetectionIamRole
+  
