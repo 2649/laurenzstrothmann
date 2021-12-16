@@ -56,9 +56,9 @@ def normalize(img: np.ndarray, mean:List[float]=[0.485, 0.456, 0.406],
     
     # Based on albumations normalize
     img = np.stack([
-                img[:, :, 0]-mean[0]* max_pixel_value /(std[0]* max_pixel_value),
-                img[:, :, 1]-mean[1]* max_pixel_value /(std[1]* max_pixel_value),
-                img[:, :, 2]-mean[2]* max_pixel_value /(std[2]* max_pixel_value),
+                (img[:, :, 0]-mean[0]* max_pixel_value) /(std[0]* max_pixel_value),
+                (img[:, :, 1]-mean[1]* max_pixel_value) /(std[1]* max_pixel_value),
+                (img[:, :, 2]-mean[2]* max_pixel_value) /(std[2]* max_pixel_value),
             ], axis=-1)
     
     return img
