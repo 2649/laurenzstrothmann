@@ -35,21 +35,6 @@ export interface imageCardProps extends imageCardObject {
   onClick?: () => void;
 }
 
-const calculateNewImageSize = (
-  targetSize: number,
-  currentSizeOfTarget: number,
-  currentSizeOfNonTarget: number,
-  targetIsHeight: boolean = true
-) => {
-  console.log("Target height: ", targetSize);
-  const rescale_factor = targetSize / currentSizeOfTarget;
-  console.log("Rescale factor", rescale_factor);
-
-  return targetIsHeight
-    ? [currentSizeOfNonTarget * rescale_factor, targetSize]
-    : [targetSize, currentSizeOfNonTarget * rescale_factor];
-};
-
 export default function ImageCard({
   id,
   src,
@@ -130,45 +115,29 @@ export default function ImageCard({
 
   // Effects
   useEffect(() => {
-    console.log("Image creation started");
     const img = new Image();
-    img.loading = "eager";
     img.onload = (el: any) => {
       // Not optimal, however the solution does not work: https://www.kindacode.com/article/react-typescript-image-onload-onerror-events/
-      console.log("Image loaded");
-      var newResizeSize = calculateNewImageSize(
-        height * 0.6,
-        el?.currentTarget?.height,
-        el?.currentTarget?.width
-      );
+      let newResizeSize;
 
-      // Check if width is too large for card
-      if (width < newResizeSize[0]) {
-        newResizeSize = calculateNewImageSize(
+      newResizeSize = [
+        el?.currentTarget?.width * ((height * 0.6) / el?.currentTarget?.height),
+        height * 0.6,
+      ];
+      if (newResizeSize[0] > width) {
+        newResizeSize = [
           width,
-          el?.currentTarget.width,
-          el?.currentTarget.height,
-          false
-        );
+          el?.currentTarget?.height * (width / el?.currentTarget?.width),
+        ];
       }
 
       setResizeSize(newResizeSize);
-      console.log("New resize size:", newResizeSize);
       // Draw on image canvas
       imageRef?.current
         .getContext("2d")
         ?.drawImage(img, 0, 0, newResizeSize[0], newResizeSize[1]);
-      console.log(
-        `Image rescaled from [${el?.currentTarget.width}, ${el?.currentTarget.height}] to ${newResizeSize}`
-      );
-      console.log(
-        `Ratio from ${el?.currentTarget.width / el?.currentTarget.height} to ${
-          newResizeSize[0] / newResizeSize[1]
-        }`
-      );
     };
     img.src = src;
-    console.log("Setted src");
   }, [height, width, src]);
 
   useEffect(() => {
@@ -182,7 +151,7 @@ export default function ImageCard({
         showLabel
       );
     }
-  }, [annotations, resizeSize, showLabel, highlightedLabel]); // Redraw hooks here
+  }, [annotations, resizeSize, showLabel, highlightedLabel]);
 
   return (
     <Card sx={{ margin: "auto", marginTop: 3 }}>
@@ -202,7 +171,7 @@ export default function ImageCard({
         title={title}
         subheader={new Date(dateCreated).toDateString()}
       />
-      <CardMedia sx={{}}>
+      <CardMedia>
         <div
           style={{
             width: resizeSize[0],

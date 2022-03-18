@@ -18,11 +18,11 @@ export const drawAnnotations = (
   // Get context
   const ctx = canvas.current?.getContext("2d");
   if (ctx) {
-    ctx.strokeStyle = "blue";
     ctx.clearRect(0, 0, imgW, imgH);
 
     annotations.forEach((el) => {
       if (filter.includes(el.id)) {
+        ctx.strokeStyle = el.color;
         if (el.type === "bbox") {
           drawBbox(ctx, el, imgW, imgH, highlightAnnotationId);
         }

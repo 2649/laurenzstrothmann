@@ -23,8 +23,8 @@ export default function CustomImageList() {
         {images.map((image: imageCardObject) => {
           const props: imageCardProps = {
             ...image,
-            width: window.innerWidth * 0.49,
-            height: window.innerHeight * 0.49,
+            width: window.innerWidth * 0.5,
+            height: window.innerHeight * 0.5,
             onClick: () => {
               setModalCardId(image.id);
             },
