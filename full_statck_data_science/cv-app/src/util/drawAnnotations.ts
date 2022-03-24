@@ -19,6 +19,7 @@ export const drawAnnotations = (
   const ctx = canvas.current?.getContext("2d");
   if (ctx) {
     ctx.clearRect(0, 0, imgW, imgH);
+    ctx.lineWidth = 2;
 
     annotations.forEach((el) => {
       if (filter.includes(el.id)) {
@@ -42,11 +43,19 @@ const drawBbox = (
   highlightAnnotationId: string | null
 ) => {
   ctx.beginPath();
+  console.log(annotation);
+  console.log(imgW, imgH);
+  console.log(
+    annotation.box[0] * imgW,
+    annotation.box[1] * imgH + annotation.box[3] * imgH,
+    annotation.box[2] * imgW,
+    annotation.box[3] * imgH
+  );
   ctx.rect(
     annotation.box[0] * imgW,
-    annotation.box[1] * imgH,
-    annotation.box[0] * imgW + annotation.box[2] * imgW,
-    annotation.box[1] * imgH + annotation.box[3] * imgH
+    annotation.box[1] * imgH + annotation.box[3] * imgH,
+    annotation.box[2] * imgW,
+    annotation.box[3] * imgH
   );
   if (highlightAnnotationId === annotation.id) {
     ctx.fillStyle = annotation.color + "4D";
