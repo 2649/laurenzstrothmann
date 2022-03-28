@@ -1,14 +1,12 @@
 import { RefObject } from "react";
 import {
+  anyAnnoationObject,
   bboxAnnotationObject,
-  classAnnotationObject,
   polygonAnnotationObject,
 } from "./types";
 
 export const drawAnnotations = (
-  annotations: Array<
-    bboxAnnotationObject | classAnnotationObject | polygonAnnotationObject
-  >,
+  annotations: anyAnnoationObject[],
   canvas: RefObject<HTMLCanvasElement>,
   imgW: number,
   imgH: number,
@@ -43,19 +41,12 @@ const drawBbox = (
   highlightAnnotationId: string | null
 ) => {
   ctx.beginPath();
-  console.log(annotation);
-  console.log(imgW, imgH);
-  console.log(
-    annotation.box[0] * imgW,
-    annotation.box[1] * imgH + annotation.box[3] * imgH,
-    annotation.box[2] * imgW,
-    annotation.box[3] * imgH
-  );
+
   ctx.rect(
     annotation.box[0] * imgW,
-    annotation.box[1] * imgH + annotation.box[3] * imgH,
+    annotation.box[1] * imgH + imgH * annotation.box[3],
     annotation.box[2] * imgW,
-    annotation.box[3] * imgH
+    -annotation.box[3] * imgH
   );
   if (highlightAnnotationId === annotation.id) {
     ctx.fillStyle = annotation.color + "4D";

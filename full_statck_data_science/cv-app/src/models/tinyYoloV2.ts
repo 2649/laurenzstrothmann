@@ -1,15 +1,13 @@
-import { Tensor } from "onnxruntime-web";
+import { TypedTensor } from "onnxruntime-web";
 import * as Jimp from "jimp";
 import { sigmoid, softmax } from "../util/math";
-import {
-  bboxAnnotationObject,
-  polygonAnnotationObject,
-  classAnnotationObject,
-} from "../util/types";
+import { bboxAnnotationObject, anyAnnoationObject } from "../util/types";
 import InferenceBase from "./inference";
-import { calcPaddingAfterResize } from "../util/imageProcess";
+import {
+  calcPaddingAfterResize,
+  nonMaximumSupression,
+} from "../util/imageProcess";
 import { v4 as uuidv4 } from "uuid";
-import { height } from "@mui/system";
 
 class TinyYoloV2 extends InferenceBase {
   classes: string[];
@@ -77,21 +75,14 @@ class TinyYoloV2 extends InferenceBase {
   }
 
   preprocess(jimpImage: Jimp): Jimp {
-    console.log(jimpImage);
     return jimpImage.contain(this.dims[2], this.dims[3]);
   }
 
   postprocess(
-    output: Tensor,
+    output: TypedTensor<"float32">,
     inputImage: Jimp
-  ): (
-    | bboxAnnotationObject
-    | polygonAnnotationObject
-    | classAnnotationObject
-  )[] {
+  ): anyAnnoationObject[] {
     // Expected dims of output: [1, 125, 13, 13]
-    console.log(output);
-
     console.time("Postprocess time");
 
     // Prepare variables for loops and processing
@@ -101,17 +92,13 @@ class TinyYoloV2 extends InferenceBase {
       [this.dims[2], this.dims[3]],
       [inputImage.getWidth(), inputImage.getHeight()]
     );
-    var outputBoxes: (
-      | bboxAnnotationObject
-      | polygonAnnotationObject
-      | classAnnotationObject
-    )[] = [];
+    var outputBoxes: bboxAnnotationObject[] = [];
 
     // We will use the indexes to splice the FloatArray and extract all bboxes
     for (anchorY; anchorY < 13; anchorY++) {
       anchorX = 0;
       for (anchorX; anchorX < 13; anchorX++) {
-        var currentBboxList = [];
+        var currentBboxList: number[] = [];
         anchorId = 0;
         for (anchorId; anchorId < 125; anchorId++) {
           currentBboxList.push(output.data[anchorId * stepSize + offset]);
@@ -120,7 +107,7 @@ class TinyYoloV2 extends InferenceBase {
         for (bboxIdx; bboxIdx < 5; bboxIdx++) {
           var currentBbox = currentBboxList.splice(0, 25);
           const currentC = sigmoid(currentBbox[4]);
-          if (currentC > 0.5) {
+          if (currentC > 0.3) {
             // Actual processing of bbox
             const softmaxOut = softmax(
               currentBbox.slice(5, currentBbox.length)
@@ -131,20 +118,25 @@ class TinyYoloV2 extends InferenceBase {
               this.classesColor[softmaxOut.indexOf(Math.max(...softmaxOut))];
 
             const width = //@ts-ignore
-              (Math.exp(currentBbox[2]) * this.anchors[bboxIdx * 2] * 32) /
-              this.dims[2];
+              Math.exp(currentBbox[2]) * this.anchors[bboxIdx * 2] * 32;
             const height = //@ts-ignore
-              (Math.exp(currentBbox[3]) * this.anchors[bboxIdx * 2 + 1] * 32) /
-              this.dims[3];
-
-            const bbox = [
-              (sigmoid(currentBbox[0]) * 32 * anchorY - paddings[0] - width / 2) / (this.dims[2] - (paddings[0] + paddings[2])),
-              (sigmoid(currentBbox[1]) * 32 * anchorX - paddings[1] - height / 2) / (this.dims[2] - (paddings[1] + paddings[3])),
-              width / (this.dims[2]-paddings[0]-paddings[2]),
-              height / (this.dims[3]-paddings[1]-paddings[3])
+              Math.exp(currentBbox[3]) * this.anchors[bboxIdx * 2 + 1] * 32;
+            var bbox = [
+              ((sigmoid(currentBbox[0]) + anchorX) * 32 - width / 2) /
+                this.dims[2],
+              ((sigmoid(currentBbox[1]) + anchorY) * 32 - height / 2) /
+                this.dims[3],
+              width / (this.dims[2] - paddings[0] - paddings[1]),
+              height / (this.dims[3] - paddings[2] - paddings[3]),
             ];
 
-            console.log(className, bbox);
+            bbox = [
+              Math.min(Math.max(bbox[0], 0), 1),
+              Math.min(Math.max(bbox[1], 0), 1),
+              Math.min(Math.max(bbox[2], 0), 1),
+              Math.min(Math.max(bbox[3], 0), 1),
+            ];
+
             outputBoxes.push({
               className: className,
               color: classColor,
@@ -161,7 +153,7 @@ class TinyYoloV2 extends InferenceBase {
     }
     console.timeEnd("Postprocess time");
 
-    return outputBoxes;
+    return nonMaximumSupression(outputBoxes);
   }
 }
 

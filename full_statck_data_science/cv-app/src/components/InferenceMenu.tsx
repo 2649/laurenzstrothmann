@@ -7,24 +7,27 @@ import { useState } from "react";
 //Own
 import { tinyYoloV2Executor } from "../models/tinyYoloV2";
 import { theme } from "../App";
-import { bboxAnnotationObject, classAnnotationObject, polygonAnnotationObject } from "../util/types";
+import { anyAnnoationObject } from "../util/types";
 
 interface InferenceMenuProps {
   src: string;
-  updateAnnotation: (annotations: any)=>void;
+  updateAnnotation: (annotations: anyAnnoationObject[]) => void;
 }
 
-export default function InferenceMenu({ src, updateAnnotation }: InferenceMenuProps) {
+export default function InferenceMenu({
+  src,
+  updateAnnotation,
+}: InferenceMenuProps) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
   const inference = () => {
     console.log("Start inference");
     setLoading(true);
-    const inferenceResult = tinyYoloV2Executor
+    tinyYoloV2Executor
       .inference(src)
-      .then((result: any) => {
-        updateAnnotation(result)
+      .then((result) => {
+        updateAnnotation(result);
         setLoading(false);
         setSuccess(true);
       })

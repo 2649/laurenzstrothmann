@@ -20,13 +20,16 @@ export interface polygonAnnotationObject extends baseAnnotationObject {
   type: "polygon";
 }
 
+export type anyAnnoationObject =
+  | bboxAnnotationObject
+  | polygonAnnotationObject
+  | bboxAnnotationObject;
+
 export interface imageCardObject {
   id: string;
   src: string;
   title: string;
   dateCreated: string;
   highlighted: boolean;
-  annotations: Array<
-    bboxAnnotationObject | classAnnotationObject | polygonAnnotationObject
-  >;
+  annotations: anyAnnoationObject[];
 }

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 import CustomImageList from "./components/CustomImageList";

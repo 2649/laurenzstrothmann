@@ -1,10 +1,6 @@
-import { InferenceSession, Tensor } from "onnxruntime-web";
+import { InferenceSession, Tensor, TypedTensor } from "onnxruntime-web";
 import * as Jimp from "jimp";
-import {
-  bboxAnnotationObject,
-  classAnnotationObject,
-  polygonAnnotationObject,
-} from "../util/types";
+import { anyAnnoationObject } from "../util/types";
 import { arraysToFloat32Data, jimpToImageArrays } from "../util/imageProcess";
 
 export class ModelStillLoadingError extends Error {
@@ -46,20 +42,16 @@ export default class InferenceBase {
   }
 
   postprocess(
-    output: Tensor,
+    output: TypedTensor<"float32">,
     inputImage: Jimp
-  ): Array<
-    bboxAnnotationObject | polygonAnnotationObject | classAnnotationObject
-  > {
+  ): anyAnnoationObject[] {
     throw new NotImplementedError("The fn postprocess needs to be implemented");
   }
 
   // Standard functions
   async inference(src: string) {
     let error = false;
-    let processedOutput: Array<
-      classAnnotationObject | bboxAnnotationObject | polygonAnnotationObject
-    >;
+    let processedOutput: anyAnnoationObject[];
 
     if (this.session === undefined) {
       throw new ModelStillLoadingError(
@@ -71,7 +63,7 @@ export default class InferenceBase {
       const inputImage = await this.loadImageToJimp(src);
       const preprocessedImage = this.preprocess(inputImage.clone());
       const inputTensor = this.imageToTensor(preprocessedImage);
-      const feeds: Record<string, Tensor> = {};
+      const feeds: Record<string, TypedTensor<"float32">> = {};
 
       feeds[this.session.inputNames[0]] = inputTensor;
 
@@ -79,7 +71,7 @@ export default class InferenceBase {
       console.log(feeds);
 
       const outputData = await this.session.run(feeds);
-      const output = outputData[this.session.outputNames[0]];
+      const output: any = outputData[this.session.outputNames[0]];
       processedOutput = this.postprocess(output, inputImage);
 
       console.log("Inference result");
@@ -88,7 +80,7 @@ export default class InferenceBase {
       console.log(e);
       error = true;
     }
-    return new Promise((resolve, reject) => {
+    return new Promise<anyAnnoationObject[]>((resolve, reject) => {
       error ? reject([]) : resolve(processedOutput);
     });
   }
@@ -122,7 +114,11 @@ export default class InferenceBase {
       this.dims
     );
 
-    const inputTensor = new Tensor("float32", float32Data, this.dims);
+    const inputTensor: TypedTensor<"float32"> = new Tensor(
+      "float32",
+      float32Data,
+      this.dims
+    );
 
     return inputTensor;
   }

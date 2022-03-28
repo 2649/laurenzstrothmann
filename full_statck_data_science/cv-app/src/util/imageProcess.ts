@@ -1,6 +1,7 @@
+import { bboxAnnotationObject } from "./types";
 import * as Jimp from "jimp";
 
-export const jimpToImageArrays = (image: any) => {
+export const jimpToImageArrays = (image: Jimp) => {
   var imageBufferData = image.bitmap.data;
 
   const [redArray, greenArray, blueArray] = [
@@ -43,9 +44,9 @@ export const calcPaddingAfterResize = (
 
   var paddings: number[];
 
-  if (resizeFactorX > resizeFactorY) {
-    const fullPaddings = resizeFactorX * originalDims[1] - targetDims[0];
-    const addOdd = fullPaddings % 2 === 0 ? 0 : 1;
+  if (resizeFactorX < resizeFactorY) {
+    const fullPaddings = targetDims[0] - resizeFactorX * originalDims[1];
+    const addOdd = Math.floor(fullPaddings) % 2 === 0 ? 0 : 1;
     paddings = [
       0,
       0,
@@ -53,8 +54,8 @@ export const calcPaddingAfterResize = (
       Math.floor(fullPaddings / 2) + addOdd,
     ];
   } else {
-    const fullPaddings = resizeFactorY * originalDims[0] - targetDims[1];
-    const addOdd = fullPaddings % 2 === 0 ? 0 : 1;
+    const fullPaddings = targetDims[1] - resizeFactorY * originalDims[0];
+    const addOdd = Math.floor(fullPaddings) % 2 === 0 ? 0 : 1;
     paddings = [
       Math.floor(fullPaddings / 2),
       Math.floor(fullPaddings / 2) + addOdd,
@@ -63,4 +64,41 @@ export const calcPaddingAfterResize = (
     ];
   }
   return paddings;
+};
+
+const calcIoU = (bbox1: number[], bbox2: number[]) => {
+  const xLeft = Math.max(bbox1[0], bbox2[0]);
+  const yTop = Math.max(bbox1[1], bbox2[1]);
+  const xRight = Math.min(bbox1[0] + bbox1[2], bbox2[0] + bbox2[2]);
+  const yBottom = Math.min(bbox1[1] + bbox1[3], bbox2[1] + bbox2[3]);
+
+  if (xRight < xLeft || yBottom < yTop) {
+    return 0;
+  }
+
+  const intersectionArea = (xRight - xLeft) * (yBottom - yTop);
+
+  const bbox1Area = bbox1[2] * bbox1[3];
+  const bbox2Area = bbox2[2] * bbox2[3];
+
+  return intersectionArea / (bbox1Area + bbox2Area - intersectionArea);
+};
+
+export const nonMaximumSupression = (
+  bboxes: bboxAnnotationObject[],
+  iouThreshold: number = 0.5
+): bboxAnnotationObject[] => {
+  let keepBbox: boolean;
+  return bboxes.filter((el, idx) => {
+    keepBbox = true;
+    bboxes.forEach((innerEl, innerIdx) => {
+      if (
+        calcIoU(el.box, innerEl.box) > iouThreshold &&
+        el.score < innerEl.score
+      ) {
+        keepBbox = false;
+      }
+    });
+    return keepBbox;
+  });
 };

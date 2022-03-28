@@ -15,6 +15,7 @@ import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 
 // Own
 import {
+  anyAnnoationObject,
   bboxAnnotationObject,
   classAnnotationObject,
   imageCardObject,
@@ -60,10 +61,10 @@ export default function ImageCard({
     document.createElement("canvas")
   );
   const imageRef = useRef<HTMLCanvasElement>(document.createElement("canvas"));
-  
+
   // Internal functions
 
-  const updateInferenceResult = (inferenceResult:any) => {
+  const updateInferenceResult = (inferenceResult: anyAnnoationObject[]) => {
     dispatch(
       updateImage({
         id: id,
@@ -74,14 +75,13 @@ export default function ImageCard({
         annotations: [...annotations, ...inferenceResult],
       })
     );
-    setShowLabel([...showLabel, ...inferenceResult.map((el: any)=>el.id)])
-  }
+    setShowLabel([
+      ...showLabel,
+      ...inferenceResult.map((el: anyAnnoationObject) => el.id),
+    ]);
+  };
 
-  const renderAnnotationChips = (
-    annotations: Array<
-      bboxAnnotationObject | polygonAnnotationObject | classAnnotationObject
-    >
-  ) => {
+  const renderAnnotationChips = (annotations: anyAnnoationObject[]) => {
     return annotations?.map(
       (
         el:
@@ -247,7 +247,7 @@ export default function ImageCard({
           {highlighted ? <StarIcon /> : <StarBorderIcon />}
         </IconButton>
 
-        <InferenceMenu src={src} updateAnnotation={updateInferenceResult}/>
+        <InferenceMenu src={src} updateAnnotation={updateInferenceResult} />
       </CardActions>
     </Card>
   );
