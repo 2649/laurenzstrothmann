@@ -99,7 +99,7 @@ export default function AddContentFab() {
         style={{ display: "none" }}
         accept="image/*"
         onChange={(inp) => {
-          if (inp.currentTarget.files !== null) {
+          if (inp.currentTarget.files !== null) { 
             const reader = new FileReader();
             reader.onload = (e) => {
               setTakenImage(String(e.target?.result));
