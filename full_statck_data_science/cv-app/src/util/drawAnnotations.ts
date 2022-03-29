@@ -1,7 +1,7 @@
 import { RefObject } from "react";
 import {
-  bboxAnnotationObject,
   classAnnotationObject,
+  bboxAnnotationObject,
   polygonAnnotationObject,
 } from "./types";
 
@@ -19,6 +19,7 @@ export const drawAnnotations = (
   const ctx = canvas.current?.getContext("2d");
   if (ctx) {
     ctx.clearRect(0, 0, imgW, imgH);
+    ctx.lineWidth = 2;
 
     annotations.forEach((el) => {
       if (filter.includes(el.id)) {
@@ -42,11 +43,12 @@ const drawBbox = (
   highlightAnnotationId: string | null
 ) => {
   ctx.beginPath();
+
   ctx.rect(
     annotation.box[0] * imgW,
-    annotation.box[1] * imgH,
-    annotation.box[0] * imgW + annotation.box[2] * imgW,
-    annotation.box[1] * imgH + annotation.box[3] * imgH
+    annotation.box[1] * imgH + imgH * annotation.box[3],
+    annotation.box[2] * imgW,
+    -annotation.box[3] * imgH
   );
   if (highlightAnnotationId === annotation.id) {
     ctx.fillStyle = annotation.color + "4D";
@@ -66,9 +68,9 @@ const drawPolygon = (
   ctx.moveTo(annotation.polygon[0][0] * imgW, annotation.polygon[0][1] * imgH);
   annotation.polygon.forEach((el: number[], idx: number) => {
     if (idx === 0) {
-      ctx.moveTo(el[0] * imgW, el[1] * imgH);
+      ctx.moveTo(el[0] * imgW, (1 - el[1]) * imgH);
     } else {
-      ctx.lineTo(el[0] * imgW, el[1] * imgH);
+      ctx.lineTo(el[0] * imgW, (1 - el[1]) * imgH);
     }
   });
   if (highlightAnnotationId === annotation.id) {
