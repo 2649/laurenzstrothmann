@@ -50,7 +50,7 @@ export default class InferenceBase {
 
   // Standard functions
   async inference(src: string) {
-    let error = false;
+    this.error = false;
     let processedOutput: anyAnnoationObject[];
 
     if (this.session === undefined) {
@@ -78,10 +78,10 @@ export default class InferenceBase {
       console.log(processedOutput);
     } catch (e) {
       console.log(e);
-      error = true;
+      this.error = true;
     }
     return new Promise<anyAnnoationObject[]>((resolve, reject) => {
-      error ? reject([]) : resolve(processedOutput);
+      this.error ? reject([]) : resolve(processedOutput);
     });
   }
 

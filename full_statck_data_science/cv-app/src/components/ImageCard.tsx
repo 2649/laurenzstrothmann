@@ -217,6 +217,7 @@ export default function ImageCard({
           background: theme.palette.background.paper,
           flexWrap: "wrap",
           overflow: "auto",
+          width: resizeSize[0]
         }}
       >
         {renderAnnotationChips(annotations)}

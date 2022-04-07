@@ -20,14 +20,17 @@ export default function InferenceMenu({
 }: InferenceMenuProps) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [inferenceTime, setInferenceTime] = useState<null | number>(null);
 
   const inference = () => {
     console.log("Start inference");
     setLoading(true);
+    const startTime = new Date()
     tinyYoloV2Executor
       .inference(src)
       .then((result) => {
         updateAnnotation(result);
+        setInferenceTime(Math.round((new Date().getTime() - startTime.getTime()) / 100) / 10);
         setLoading(false);
         setSuccess(true);
       })
@@ -49,7 +52,7 @@ export default function InferenceMenu({
         disabled={loading}
         onClick={inference}
       >
-        Inference
+        {inferenceTime ? `Inference (${inferenceTime} Sec)` : "Inference"}
       </Button>
 
       {loading && <LinearProgress />}
