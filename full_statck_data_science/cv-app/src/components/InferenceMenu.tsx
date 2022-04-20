@@ -4,7 +4,7 @@ import LinearProgress from "@mui/material/LinearProgress";
 import Box from "@mui/material/Box";
 import { useState } from "react";
 
-//Own
+//Custom
 import { tinyYoloV2Executor } from "../models/tinyYoloV2";
 import { theme } from "../App";
 import { anyAnnoationObject } from "../util/types";
@@ -25,12 +25,14 @@ export default function InferenceMenu({
   const inference = () => {
     console.log("Start inference");
     setLoading(true);
-    const startTime = new Date()
+    const startTime = new Date();
     tinyYoloV2Executor
       .inference(src)
       .then((result) => {
         updateAnnotation(result);
-        setInferenceTime(Math.round((new Date().getTime() - startTime.getTime()) / 100) / 10);
+        setInferenceTime(
+          Math.round((new Date().getTime() - startTime.getTime()) / 100) / 10
+        );
         setLoading(false);
         setSuccess(true);
       })

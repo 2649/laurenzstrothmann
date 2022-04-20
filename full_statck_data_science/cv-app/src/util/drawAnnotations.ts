@@ -65,9 +65,9 @@ const drawPolygon = (
   ctx.moveTo(annotation.polygon[0][0] * imgW, annotation.polygon[0][1] * imgH);
   annotation.polygon.forEach((el: number[], idx: number) => {
     if (idx === 0) {
-      ctx.moveTo(el[0] * imgW, (1-el[1]) * imgH);
+      ctx.moveTo(el[0] * imgW, (1 - el[1]) * imgH);
     } else {
-      ctx.lineTo(el[0] * imgW, (1-el[1]) * imgH);
+      ctx.lineTo(el[0] * imgW, (1 - el[1]) * imgH);
     }
   });
   if (highlightAnnotationId === annotation.id) {
