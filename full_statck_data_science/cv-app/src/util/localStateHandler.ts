@@ -1,4 +1,4 @@
-import { imageCardObject } from "../util/types";
+import { imageCardObject } from "./types";
 
 const idName = "Ids";
 

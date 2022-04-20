@@ -12,10 +12,10 @@ import Chip from "@mui/material/Chip";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import HexagonOutlinedIcon from "@mui/icons-material/HexagonOutlined";
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
-import AutoAwesome from "@mui/icons-material/AutoAwesome";
 
 // Own
 import {
+  anyAnnoationObject,
   bboxAnnotationObject,
   classAnnotationObject,
   imageCardObject,
@@ -25,6 +25,7 @@ import { drawAnnotations } from "../util/drawAnnotations";
 import { theme } from "../App";
 import { useAppDispatch } from "../app/hooks";
 import { updateImage, removeImage } from "../app/imageState";
+import InferenceMenu from "./InferenceMenu";
 
 // React
 import { useEffect, useRef, useState } from "react";
@@ -62,11 +63,25 @@ export default function ImageCard({
   const imageRef = useRef<HTMLCanvasElement>(document.createElement("canvas"));
 
   // Internal functions
-  const renderAnnotationChips = (
-    annotations: Array<
-      bboxAnnotationObject | polygonAnnotationObject | classAnnotationObject
-    >
-  ) => {
+
+  const updateInferenceResult = (inferenceResult: anyAnnoationObject[]) => {
+    dispatch(
+      updateImage({
+        id: id,
+        src: src,
+        title: title,
+        dateCreated: dateCreated,
+        highlighted: highlighted,
+        annotations: [...annotations, ...inferenceResult],
+      })
+    );
+    setShowLabel([
+      ...showLabel,
+      ...inferenceResult.map((el: anyAnnoationObject) => el.id),
+    ]);
+  };
+
+  const renderAnnotationChips = (annotations: anyAnnoationObject[]) => {
     return annotations?.map(
       (
         el:
@@ -202,6 +217,7 @@ export default function ImageCard({
           background: theme.palette.background.paper,
           flexWrap: "wrap",
           overflow: "auto",
+          width: resizeSize[0],
         }}
       >
         {renderAnnotationChips(annotations)}
@@ -232,9 +248,7 @@ export default function ImageCard({
           {highlighted ? <StarIcon /> : <StarBorderIcon />}
         </IconButton>
 
-        <IconButton aria-label="execute-inference" sx={{ marginLeft: "auto" }}>
-          <AutoAwesome />
-        </IconButton>
+        <InferenceMenu src={src} updateAnnotation={updateInferenceResult} />
       </CardActions>
     </Card>
   );
