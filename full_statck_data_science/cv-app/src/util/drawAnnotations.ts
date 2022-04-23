@@ -41,10 +41,10 @@ const drawBbox = (
   highlightAnnotationId: string | null
 ) => {
   ctx.beginPath();
-
+  console.log(annotation.box)
   ctx.rect(
     annotation.box[0] * imgW,
-    annotation.box[1] * imgH + imgH * annotation.box[3],
+    annotation.box[1] * imgH,
     annotation.box[2] * imgW,
     -annotation.box[3] * imgH
   );

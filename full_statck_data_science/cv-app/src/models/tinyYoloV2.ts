@@ -124,7 +124,7 @@ class TinyYoloV2 extends InferenceBase {
             var bbox = [
               ((sigmoid(currentBbox[0]) + anchorX) * 32 - width / 2) /
                 this.dims[2],
-              ((sigmoid(currentBbox[1]) + anchorY) * 32 - height / 2) /
+              ((sigmoid(currentBbox[1]) + anchorY) * 32 + height / 2) /
                 this.dims[3],
               width / (this.dims[2] - paddings[0] - paddings[1]),
               height / (this.dims[3] - paddings[2] - paddings[3]),
