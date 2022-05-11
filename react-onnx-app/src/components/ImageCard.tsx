@@ -64,7 +64,11 @@ export default function ImageCard({
 
   // Internal functions
 
-  const updateInferenceResult = (inferenceResult: anyAnnoationObject[]) => {
+  const updateInferenceResult = (inferenceResult: anyAnnoationObject[], annotationIdToRemove: string | null= null) => {
+    var processedAnnotation = annotations
+    if (annotationIdToRemove){
+      processedAnnotation = annotations.filter(el=>el.id !== annotationIdToRemove)
+    }
     dispatch(
       updateImage({
         id: id,
@@ -72,7 +76,7 @@ export default function ImageCard({
         title: title,
         dateCreated: dateCreated,
         highlighted: highlighted,
-        annotations: [...annotations, ...inferenceResult],
+        annotations: [...processedAnnotation, ...inferenceResult],
       })
     );
     setShowLabel([
@@ -116,6 +120,8 @@ export default function ImageCard({
                 setShowLabel([...showLabel, el.id]);
               }
             }}
+            onDelete={()=>updateInferenceResult([], el.id)}
+            deleteIcon={<DeleteIcon/>}
             onMouseOver={() => {
               setHighlightedLabel(el.id);
             }}
