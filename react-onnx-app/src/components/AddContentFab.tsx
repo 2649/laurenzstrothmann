@@ -26,6 +26,30 @@ export default function AddContentFab() {
     setImageName(null);
     setTakenImage(null);
   };
+
+  const resizeImageToMaximum1Mb = (img: string) => {
+    if (img.length > 1_000_000) {
+      const rescaleRatio = 1_000_000 / img.length
+      console.log(`Rescale ratio: ${rescaleRatio}`)
+      const tmp_img = new Image()
+      tmp_img.onload = () => {        
+        const rescaledSize = [Math.floor(tmp_img.width * rescaleRatio), Math.floor(tmp_img.height * rescaleRatio)]
+        
+        const canvas = document.createElement("canvas")
+        canvas.width = rescaledSize[0]
+        canvas.height = rescaledSize[1]
+        const ctx = canvas.getContext("2d")
+        ctx?.drawImage(tmp_img,0, 0, rescaledSize[0], rescaledSize[1])
+        
+        setTakenImage(canvas.toDataURL("image/jpeg", 1))
+      }
+      tmp_img.src = img
+    }
+    else {
+      setTakenImage(img)
+    }
+  }
+
   const saveImage = () => {
     const payload: imageCardObject = {
       id: uuidv4(),
@@ -102,7 +126,7 @@ export default function AddContentFab() {
           if (inp.currentTarget.files !== null) {
             const reader = new FileReader();
             reader.onload = (e) => {
-              setTakenImage(String(e.target?.result));
+              resizeImageToMaximum1Mb(String(e.target?.result));
             };
             setImageName(inp?.currentTarget.files[0].name);
             setDateCreated(String(new Date()));
