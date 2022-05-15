@@ -12,7 +12,6 @@ import ImageCard from "./ImageCard";
 import { useAppDispatch } from "../app/hooks";
 import { addImage } from "../app/imageState";
 import { imageCardObject } from "../util/types";
-import { theme } from "../App";
 
 export default function AddContentFab() {
   // States, Refs & vars
