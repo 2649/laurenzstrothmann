@@ -33,6 +33,7 @@ import { useEffect, useRef, useState } from "react";
 export interface imageCardProps extends imageCardObject {
   width: number;
   height: number;
+  showActions?: boolean;
   onClick?: () => void;
 }
 
@@ -45,6 +46,7 @@ export default function ImageCard({
   annotations,
   width,
   height,
+  showActions = true,
   onClick,
 }: imageCardProps) {
   // States and refs
@@ -233,34 +235,36 @@ export default function ImageCard({
       >
         {renderAnnotationChips(annotations)}
       </CardContent>
-      <CardActions
-        disableSpacing
-        sx={{
-          position: "relative",
-          background: theme.palette.secondary.main,
-        }}
-      >
-        <IconButton
-          aria-label="add to favorites"
-          sx={{ marginRight: "auto" }}
-          onClick={() => {
-            dispatch(
-              updateImage({
-                id: id,
-                src: src,
-                title: title,
-                dateCreated: dateCreated,
-                highlighted: !highlighted,
-                annotations: annotations,
-              })
-            );
+      {showActions && (
+        <CardActions
+          disableSpacing
+          sx={{
+            position: "relative",
+            background: theme.palette.secondary.main,
           }}
         >
-          {highlighted ? <StarIcon /> : <StarBorderIcon />}
-        </IconButton>
+          <IconButton
+            aria-label="add to favorites"
+            sx={{ marginRight: "auto" }}
+            onClick={() => {
+              dispatch(
+                updateImage({
+                  id: id,
+                  src: src,
+                  title: title,
+                  dateCreated: dateCreated,
+                  highlighted: !highlighted,
+                  annotations: annotations,
+                })
+              );
+            }}
+          >
+            {highlighted ? <StarIcon /> : <StarBorderIcon />}
+          </IconButton>
 
-        <InferenceMenu src={src} updateAnnotation={updateInferenceResult} />
-      </CardActions>
+          <InferenceMenu src={src} updateAnnotation={updateInferenceResult} />
+        </CardActions>
+      )}
     </Card>
   );
 }

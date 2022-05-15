@@ -12,6 +12,7 @@ import ImageCard from "./ImageCard";
 import { useAppDispatch } from "../app/hooks";
 import { addImage } from "../app/imageState";
 import { imageCardObject } from "../util/types";
+import { theme } from "../App";
 
 export default function AddContentFab() {
   // States, Refs & vars
@@ -89,12 +90,14 @@ export default function AddContentFab() {
               title={imageName ? imageName : "Your new image"}
               dateCreated={String(dateCreated)}
               highlighted={false}
+              showActions={false}
             />
           </Grid>
           <Grid
             item
             xs={6}
             sx={{
+              padding: 0,
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
