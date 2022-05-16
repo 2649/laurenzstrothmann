@@ -86,7 +86,7 @@ class TinyYoloV2 extends InferenceBase {
     console.time("Postprocess time");
 
     // Prepare variables for loops and processing
-    var [offset, anchorX, anchorY, anchorId, bboxIdx] = [0, 0, 0, 0, 0];
+    var [offset, gridX, gridY, stepId, bboxIdx] = [0, 0, 0, 0, 0];
     const stepSize = 13 * 13;
     const paddings = calcPaddingAfterResize(
       [this.dims[2], this.dims[3]],
@@ -95,13 +95,13 @@ class TinyYoloV2 extends InferenceBase {
     var outputBoxes: bboxAnnotationObject[] = [];
 
     // We will use the indexes to splice the FloatArray and extract all bboxes
-    for (anchorY; anchorY < 13; anchorY++) {
-      anchorX = 0;
-      for (anchorX; anchorX < 13; anchorX++) {
+    for (gridY; gridY < 13; gridY++) {
+      gridX = 0;
+      for (gridX; gridX < 13; gridX++) {
         var currentBboxList: number[] = [];
-        anchorId = 0;
-        for (anchorId; anchorId < 125; anchorId++) {
-          currentBboxList.push(output.data[anchorId * stepSize + offset]);
+        stepId = 0;
+        for (stepId; stepId < 125; stepId++) {
+          currentBboxList.push(output.data[stepId * stepSize + offset]);
         }
         bboxIdx = 0;
         for (bboxIdx; bboxIdx < 5; bboxIdx++) {
@@ -122,9 +122,9 @@ class TinyYoloV2 extends InferenceBase {
             const height = //@ts-ignore
               Math.exp(currentBbox[3]) * this.anchors[bboxIdx * 2 + 1] * 32;
             var bbox = [
-              ((sigmoid(currentBbox[0]) + anchorX) * 32 - width / 2) /
+              ((sigmoid(currentBbox[0]) + gridX) * 32 - width / 2) /
                 this.dims[2],
-              ((sigmoid(currentBbox[1]) + anchorY) * 32 + height / 2) /
+              ((sigmoid(currentBbox[1]) + gridY) * 32 + height / 2) /
                 this.dims[3],
               width / (this.dims[2] - paddings[0] - paddings[1]),
               height / (this.dims[3] - paddings[2] - paddings[3]),

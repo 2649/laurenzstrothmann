@@ -86,7 +86,7 @@ const calcIoU = (bbox1: number[], bbox2: number[]) => {
 
 export const nonMaximumSupression = (
   bboxes: bboxAnnotationObject[],
-  iouThreshold: number = 0.5
+  iouThreshold: number = 0.3
 ): bboxAnnotationObject[] => {
   let keepBbox: boolean;
   return bboxes.filter((el, idx) => {
