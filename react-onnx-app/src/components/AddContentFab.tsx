@@ -27,7 +27,7 @@ export default function AddContentFab() {
     setTakenImage(null);
   };
 
-  const resizeImageToMaximum1Mb = (img: string) => {
+  const resizeImageToMaximum2Mb = (img: string) => {
     if (img.length > 1_000_000) {
       const rescaleRatio = 1_000_000 / img.length;
       console.log(`Rescale ratio: ${rescaleRatio}`);
@@ -130,7 +130,7 @@ export default function AddContentFab() {
           if (inp.currentTarget.files !== null) {
             const reader = new FileReader();
             reader.onload = (e) => {
-              resizeImageToMaximum1Mb(String(e.target?.result));
+              resizeImageToMaximum2Mb(String(e.target?.result));
             };
             setImageName(inp?.currentTarget.files[0].name);
             setDateCreated(String(new Date()));
