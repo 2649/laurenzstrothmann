@@ -1,0 +1,12 @@
+version: '3.3'
+
+services:
+  cvat_server:
+    labels:
+      - traefik.http.routers.cvat.rule=Host(`${CVAT_HOST}`, `${CVAT_HOST_INTERNAL}`) &&
+          PathPrefix(`/api/`, `/git/`, `/opencv/`, `/static/`, `/admin`, `/documentation/`, `/django-rq`)
+  cvat_ui:
+    labels:
+      - traefik.http.routers.cvat-ui.rule=Host(`${CVAT_HOST}`, `${CVAT_HOST_INTERNAL}`)
+
+
