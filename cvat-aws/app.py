@@ -35,6 +35,7 @@ cvat_stack = CvatStack(
     user_pool_client=durable_stack.user_pool_client,
     user_pool_domain=durable_stack.user_pool_domain,
     config=config,
+    create_EIP=True if config.ec2_key else False
 )
 
 ec2_controller = CvatEc2Controller(

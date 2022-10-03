@@ -73,6 +73,7 @@ class CvatStack(Stack):
         self.cvat_listener_https = self.alb.add_listener(
             "cvat_listener_https",
             port=443,
+            ssl_policy=alb.SslPolicy.TLS12_EXT
         )
 
         self.cvat_listener_http = self.alb.add_listener(
