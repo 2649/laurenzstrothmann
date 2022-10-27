@@ -1,5 +1,4 @@
 import os
-from venv import create
 import boto3
 import logging
 import sys
@@ -16,18 +15,21 @@ logger = logging.getLogger("cvat_lambda_handler")
 # Read env
 try:
     instance_id = os.environ["CVAT_INSTANCE_ID"]
-except KeyError:
+except KeyError as e:
     logger.error("No key found for CVAT_INSTANCE_ID. The key is needed!")
+    raise e
 
 try:
     ami_name = os.environ["CVAT_AMI_NAME"]
-except KeyError:
+except KeyError as e:
     logger.error("No key found for CVAT_AMI_NAME. The key is needed!")
+    raise e
 
 try:
     ssm_ami_param = os.environ["CVAT_AMI_SSM_PARAM"]
-except KeyError:
+except KeyError as e:
     logger.error("No key found for CVAT_AMI_SSM_PARAM. The key is needed!")
+    raise e
 
 
 ec2 = boto3.client("ec2")
@@ -42,7 +44,7 @@ def event_handler(event: dict, context: dict):
     create_ami = event.get("ami", False)
 
     if create_ami:
-        logger.info(f"Create AMI event is executed: {create}")
+        logger.info(f"Create AMI event is executed: {create_ami}")
         date = datetime.datetime.now()
         resp = ec2.create_image(
             Description=f"CVAT backup from {date.isoformat()}",
